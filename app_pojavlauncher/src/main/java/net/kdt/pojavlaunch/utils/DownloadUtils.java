@@ -21,7 +21,6 @@ public class DownloadUtils {
     }
 
     public static void download(URL url, OutputStream os) throws IOException {
-        InputStream is = null;
         try {
             // System.out.println("Connecting: " + url.toString());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -30,21 +29,16 @@ public class DownloadUtils {
             conn.setDoInput(true);
             conn.connect();
             if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new IOException("Server returned HTTP " + conn.getResponseCode()
+                // We may be on the mirror, just give it a chance to rollback to official
+                throw new SocketException("Server returned HTTP " + conn.getResponseCode()
                         + ": " + conn.getResponseMessage());
             }
-            is = conn.getInputStream();
-            IOUtils.copy(is, os);
-        } catch (IOException e) {
-            throw new IOException("Unable to download from " + url, e);
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            try (InputStream is = conn.getInputStream()) {
+                IOUtils.copy(is, os);
             }
+        } catch (IOException e) { // Here Is Socket Exception
+            Log.w("DownloadUtils", "Unable to download from " + url, e);
+            throw e;
         }
     }
 

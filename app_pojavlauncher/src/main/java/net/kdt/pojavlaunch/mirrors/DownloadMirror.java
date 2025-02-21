@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 public class DownloadMirror {
     public static final int DOWNLOAD_CLASS_LIBRARIES = 0;
@@ -41,7 +43,8 @@ public class DownloadMirror {
             DownloadUtils.downloadFileMonitored(getMirrorMapping(downloadClass, urlInput),
                     outputFile, buffer, monitor);
             return;
-        }catch (Throwable e) {
+        }catch (FileNotFoundException | SocketException /* Connection Reset and java.net.ConnectException */
+                | UnknownHostException e) {
             Log.w("DownloadMirror", "Cannot find the file on the mirror", e);
             Log.i("DownloadMirror", "Falling back to default source");
         }
@@ -61,7 +64,8 @@ public class DownloadMirror {
             DownloadUtils.downloadFile(getMirrorMapping(downloadClass, urlInput),
                     outputFile);
             return;
-        }catch (Throwable e) {
+        } catch (FileNotFoundException | SocketException /* Connection Reset and java.net.ConnectException */
+                | UnknownHostException e) {
             Log.w("DownloadMirror", "Cannot find the file on the mirror", e);
             Log.i("DownloadMirror", "Falling back to default source");
         }
@@ -78,7 +82,7 @@ public class DownloadMirror {
      */
     public static long getContentLengthMirrored(int downloadClass, String urlInput) throws IOException {
         long length = DownloadUtils.getContentLength(getMirrorMapping(downloadClass, urlInput));
-        if(length < 1) {
+        if (length < 1) {
             Log.w("DownloadMirror", "Unable to get content length from mirror");
             Log.i("DownloadMirror", "Falling back to default source");
             return DownloadUtils.getContentLength(urlInput);
