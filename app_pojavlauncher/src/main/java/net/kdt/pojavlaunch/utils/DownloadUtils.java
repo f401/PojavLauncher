@@ -10,6 +10,8 @@ import java.nio.charset.*;
 import java.util.concurrent.Callable;
 
 import net.kdt.pojavlaunch.*;
+import net.kdt.pojavlaunch.mirrors.HttpException;
+
 import org.apache.commons.io.*;
 
 @SuppressWarnings("IOStreamConstructor")
@@ -29,14 +31,13 @@ public class DownloadUtils {
             conn.setDoInput(true);
             conn.connect();
             if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                // We may be on the mirror, just give it a chance to rollback to official
-                throw new SocketException("Server returned HTTP " + conn.getResponseCode()
+                throw new HttpException("Server returned HTTP " + conn.getResponseCode()
                         + ": " + conn.getResponseMessage());
             }
             try (InputStream is = conn.getInputStream()) {
                 IOUtils.copy(is, os);
             }
-        } catch (IOException e) { // Here Is Socket Exception
+        } catch (IOException e) {
             Log.w("DownloadUtils", "Unable to download from " + url, e);
             throw e;
         }

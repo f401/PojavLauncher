@@ -44,7 +44,7 @@ public class DownloadMirror {
                     outputFile, buffer, monitor);
             return;
         }catch (FileNotFoundException | SocketException /* Connection Reset and java.net.ConnectException */
-                | UnknownHostException e) {
+                | HttpException | UnknownHostException e) {
             Log.w("DownloadMirror", "Cannot find the file on the mirror", e);
             Log.i("DownloadMirror", "Falling back to default source");
         }
@@ -65,7 +65,7 @@ public class DownloadMirror {
                     outputFile);
             return;
         } catch (FileNotFoundException | SocketException /* Connection Reset and java.net.ConnectException */
-                | UnknownHostException e) {
+                | HttpException | UnknownHostException e) {
             Log.w("DownloadMirror", "Cannot find the file on the mirror", e);
             Log.i("DownloadMirror", "Falling back to default source");
         }
